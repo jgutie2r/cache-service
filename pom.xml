@@ -1,0 +1,98 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>edu.uv.cs.cache</groupId>
+  <artifactId>cache</artifactId>
+  <packaging>jar</packaging>
+  <version>1.0</version>
+  <name>cache</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <tomcat.version>10.1.24</tomcat.version>
+  </properties>
+  <dependencies>
+    <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.9.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-core</artifactId>
+      <version>${tomcat.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-jasper</artifactId>
+      <version>${tomcat.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-logging-juli</artifactId>
+      <version>9.0.0.M6</version>
+    </dependency>
+
+
+    <!-- https://mvnrepository.com/artifact/junit/junit -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13</version>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Copy dependencies to target/libs dir
+           This is used to build the docker image -->
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/libs</outputDirectory>
+              <includeScope>compile</includeScope>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- To generate and publish the image -->
+      <plugin>
+        <groupId>com.spotify</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>1.2.2</version>
+        <configuration>
+          <imageName>routerdi1315.uv.es:33443/${project.artifactId}:${project.version}</imageName>
+          <dockerDirectory>${project.basedir}/deployment/docker</dockerDirectory>
+          <resources>
+            <resource>
+              <targetPath>/</targetPath>
+              <directory>${project.build.directory}</directory>
+              <include>${project.build.finalName}.jar</include>
+            </resource>
+            <resource>
+              <targetPath>/libs</targetPath>
+              <directory>${project.build.directory}/libs</directory>
+              <include>*.jar</include>
+            </resource>
+          </resources>
+        </configuration>
+      </plugin>
+
+
+    </plugins>
+  </build>
+
+</project>
