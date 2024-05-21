@@ -80,14 +80,10 @@ pipeline{
             steps{
                 script{
                     checkout scm
-                    // Get name of the application from pom.xml
-                    // Get HASH of last git commit
-                    env.HASH = sh (script: "git log -n 1 --pretty=format:'%H'", returnStdout: true)
                     sh '''
                        sed -i -e "s/TAG/$HASH/g" ./deployment/k8s/app.yaml
                        cat ./deployment/k8s/app.yaml
                     '''
-
                     withCredentials([file(credentialsId: 'kubeConfig', variable: 'KUBECONFIG')]) {
                         sh '''
                            kubectl --kubeconfig "${KUBECONFIG}" apply -f ./deployment/k8s/app.yaml

@@ -34,6 +34,7 @@ spec:
     app: cache
   ports:
     - protocol: TCP
-      port: 32800
+      port:  8080
       targetPort: 8080
+      nodePort: 31800
   type: NodePort
